@@ -119,5 +119,6 @@ const styles = StyleSheet.create({
     right: 0,
     width: "115%",
     height: 240,
+    zIndex: 1,
   },
 });

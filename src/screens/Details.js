@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useCart } from "../context/CartContext";
 
 export default function Details({ route, navigation }) {
     const { product } = route.params || {};
@@ -16,6 +17,7 @@ export default function Details({ route, navigation }) {
     const image = product?.image || require("../../assets/icon.png");
 
     const [qty, setQty] = useState(1);
+    const { addItem } = useCart();
 
     const inc = () => setQty((q) => q + 1);
     const dec = () => setQty((q) => (q > 1 ? q - 1 : 1));
@@ -53,7 +55,13 @@ export default function Details({ route, navigation }) {
                     </View>
                 </View>
 
-                <TouchableOpacity style={styles.addBtn}>
+                <TouchableOpacity
+                    style={styles.addBtn}
+                    onPress={() => {
+                        addItem(product, qty);
+                        navigation.navigate("TabNavigator", { screen: "Cart" });
+                    }}
+                >
                     <Text style={styles.addBtnText}>ADICIONAR</Text>
                 </TouchableOpacity>
             </View>
@@ -149,5 +157,6 @@ const styles = StyleSheet.create({
         right: 0,
         width: "115%",
         height: 240,
+        zIndex: 1,
     },
 });

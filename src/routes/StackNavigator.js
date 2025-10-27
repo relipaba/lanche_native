@@ -8,6 +8,7 @@ import Options from "../screens/Options";
 import HomeSesc from "../screens/HomeSesc";
 import HomeSenac from "../screens/HomeSenac";
 import Details from "../screens/Details";
+import Historico from "../screens/Historico";
 
 const Stack = createStackNavigator();
 
@@ -25,6 +26,7 @@ export default function StackNavigator() {
             <Stack.Screen name="HomeSesc" component={HomeSesc} />
             <Stack.Screen name="HomeSenac" component={HomeSenac} />
             <Stack.Screen name="Details" component={Details} />
+            <Stack.Screen name="Historico" component={Historico} />
             <Stack.Screen name="TabNavigator" component={TabNavigator} />
 
         </Stack.Navigator>

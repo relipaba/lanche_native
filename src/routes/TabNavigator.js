@@ -1,58 +1,56 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Image } from "react-native";
+import React from "react";
+import { Feather } from "@expo/vector-icons";
+import Options from "../screens/Options";
+import Cart from "../screens/Cart";
+import User from "../screens/User";
+import { useCart } from "../context/CartContext";
 
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
-    return (
-        <Tab.Navigator
-            screenOptions={{
-                headerShown: false,
-            }}
-        >
-            <Tab.Screen
-                name="Home"
-                component={Home}
-                options={{
-                    tabBarActiveTintColor: "#B98875",
-                    tabBarLabel: "Caffee",
-                }}
-            />
-            <Tab.Screen
-                name="Local"
-                component={Local}
-                options={{
-                    tabBarActiveTintColor: "#B98875",
-                    tabBarLabel: "Lojas",
+  const { items } = useCart();
+  const count = items.reduce((sum, it) => sum + it.qty, 0);
 
-                }}
-            />
-            <Tab.Screen
-                name="Cart"
-                component={Cart}
-                options={{
-                    tabBarActiveTintColor: "#B98875",
-                    tabBarLabel: "Pedidos",
-
-                }}
-            />
-            <Tab.Screen
-                name="User"
-                component={User}
-                options={{
-                    tabBarActiveTintColor: "#B98875",
-                    tabBarLabel: "Login",
-
-                }}
-            />
-
-            <Tab.Screen
-                name="Details"
-                component={Details}
-                options={{
-                    tabBarButton: () => null,
-                }}
-            />
-        </Tab.Navigator>
-    );
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: "#ffdd1fff",
+        tabBarStyle: { backgroundColor: "#2E60AE"}
+      }}
+    >
+      <Tab.Screen
+        name="Options"
+        component={Options}
+        options={{
+          tabBarLabel: "Lojas",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="file-text" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Cart"
+        component={Cart}
+        options={{
+          tabBarLabel: "Pedidos",
+          tabBarBadge: count > 0 ? count : undefined,
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="shopping-bag" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="User"
+        component={User}
+        options={{
+          tabBarLabel: "Login",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="user" color={color} size={size} />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
 }

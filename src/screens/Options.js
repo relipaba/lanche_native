@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
-import { MaterialIcons, Feather } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const BLUE_TOP = "#4E7AD7";
 const BLUE_BOTTOM = "#274A92";
@@ -31,11 +31,7 @@ export default function Options({ navigation }) {
                 </ScrollView>
             </View>
 
-            <View style={styles.bottomBar}>
-                <Feather name="file-text" size={22} color="#000" />
-                <Feather name="shopping-bag" size={22} color="#000" />
-                <Feather name="user" size={22} color="#000" />
-            </View>
+            {/* bottom bar removido — tabs reais ficam no TabNavigator */}
         </View>
     );
 }
@@ -78,15 +74,20 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
     },
     panel: {
-        flex: 1,
         backgroundColor: PANEL_BLUE,
-        margin: 12,
+        alignSelf: "center",
+        width: "92%", // levemente maior e centralizado
+        marginVertical: 18,
         borderRadius: 16,
-        paddingVertical: 16,
+        paddingVertical: 14,
+        paddingHorizontal: 10,
     },
     panelContent: {
-        gap: 20,
+        flexGrow: 1,
+        justifyContent: "center",
         alignItems: "center",
+        gap: 28,
+        paddingVertical: 12,
     },
     card: {
         width: "86%",
@@ -104,13 +105,5 @@ const styles = StyleSheet.create({
         width: "85%",
         height: 90,
     },
-    bottomBar: {
-        backgroundColor: "#fff",
-        marginHorizontal: 20,
-        marginBottom: 16,
-        paddingVertical: 10,
-        borderRadius: 12,
-        flexDirection: "row",
-        justifyContent: "space-around",
-    },
+    // bottomBar removido
 });

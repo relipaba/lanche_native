@@ -6,8 +6,10 @@ import {
     StyleSheet,
     TouchableOpacity,
     TextInput,
+    Alert,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { supabase } from "../../lib/supabase";
 
 const BLUE = "#2E60AE";
 const YELLOW = "#FFBF3C";
@@ -18,6 +20,59 @@ export default function Cadastro({ navigation }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirm, setConfirm] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSignUp = async () => {
+        if (!name || !email || !password || !confirm) {
+            Alert.alert("Atenção", "Preencha todos os campos.");
+            return;
+        }
+        if (password !== confirm) {
+            Alert.alert("Atenção", "As senhas não coincidem.");
+            return;
+        }
+        try {
+            setSubmitting(true);
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { nome: name },
+                },
+            });
+            if (error) {
+                Alert.alert("Erro ao cadastrar", error.message);
+                return;
+            }
+            // Cria/atualiza perfil imediatamente quando houver sessão ativa
+            try {
+                const userId = data?.user?.id;
+                const hasSession = !!data?.session;
+                if (userId && hasSession) {
+                    const { error: upsertErr } = await supabase
+                        .from('perfil')
+                        .upsert({ id_user: userId, nome: name || null }, { onConflict: 'id_user' });
+                    if (upsertErr) {
+                        console.warn('Falha ao criar perfil:', upsertErr);
+                    }
+                }
+            } catch (e) {
+                console.warn('Erro ao preparar perfil:', e);
+            }
+            // Dependendo das configurações do Supabase, pode exigir verificação por e-mail.
+            Alert.alert(
+                "Sucesso",
+                data?.user?.identities?.length === 0
+                    ? "E-mail já cadastrado."
+                    : "Cadastro realizado. Verifique seu e-mail, se necessário."
+            );
+            navigation.navigate("Options");
+        } catch (e) {
+            Alert.alert("Erro inesperado", String(e?.message || e));
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -77,8 +132,8 @@ export default function Cadastro({ navigation }) {
                     />
                 </View>
 
-                <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate("Options")}>
-                    <Text style={styles.primaryButtonText}>CADASTRAR</Text>
+                <TouchableOpacity style={styles.primaryButton} onPress={handleSignUp} disabled={submitting}>
+                    <Text style={styles.primaryButtonText}>{submitting ? "Cadastrando..." : "CADASTRAR"}</Text>
                 </TouchableOpacity>
             </View>
 
@@ -146,11 +201,12 @@ const styles = StyleSheet.create({
         color: "#111",
         letterSpacing: 1,
     },
-    wave: {
-        position: "absolute",
-        bottom: 0,
-        right: 0,
-        width: "115%",
-        height: 240,
-    },
+  wave: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: "115%",
+    height: 240,
+    zIndex: 1,
+  },
 });

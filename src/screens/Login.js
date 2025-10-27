@@ -6,8 +6,10 @@ import {
     StyleSheet,
     TouchableOpacity,
     TextInput,
+    Alert,
 } from "react-native";
 import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { supabase } from "../../lib/supabase";
 
 const BLUE = "#2E60AE";
 const BLUE_LIGHT = "#4E7AD7";
@@ -17,6 +19,28 @@ const YELLOW_BORDER = "#C98E00";
 export default function Login({ navigation }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleLogin = async () => {
+        if (!email || !password) {
+            Alert.alert("Atenção", "Informe e-mail e senha.");
+            return;
+        }
+        try {
+            setSubmitting(true);
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                Alert.alert("Erro ao entrar", error.message);
+                return;
+            }
+            // sucesso: segue para o app principal
+            navigation.navigate("TabNavigator");
+        } catch (e) {
+            Alert.alert("Erro inesperado", String(e?.message || e));
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -57,8 +81,8 @@ export default function Login({ navigation }) {
                     <MaterialCommunityIcons name="lock-outline" size={20} color="#777" />
                 </View>
 
-        <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate("Options") }>
-          <Text style={styles.primaryButtonText}>ENTRAR</Text>
+        <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} disabled={submitting}>
+          <Text style={styles.primaryButtonText}>{submitting ? "Entrando..." : "ENTRAR"}</Text>
         </TouchableOpacity>
 
                 <View style={styles.links}>
@@ -148,5 +172,6 @@ const styles = StyleSheet.create({
         right: 0,
         width: "115%",
         height: 240,
+        zIndex: 1,
     },
 });
