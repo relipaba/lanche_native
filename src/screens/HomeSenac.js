@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { supabase } from "../../lib/supabase";
- 
+
 
 const BLUE_TOP = "#4E7AD7";
 const PANEL_BG = "#FFFFFF";
@@ -74,14 +74,10 @@ export default function HomeSenac({ navigation }) {
             onPress={() =>
                 navigation.navigate("Details", {
                     product: {
-                        // preserva o id do produto do banco para salvar no pedido
-                        id: item.id,
                         name: item.name,
                         price: item.price,
                         description: item.descricao || getDescription(item.name),
                         image: item.image || require("../../assets/icon.png"),
-                        // identifica a lanchonete para a tabela 'pedido'
-                        lanchoneteId: 7, // SENAC (id_lanchonete)
                     },
                 })
             }
