@@ -66,7 +66,12 @@ export default function Cadastro({ navigation }) {
                     ? "E-mail já cadastrado."
                     : "Cadastro realizado. Verifique seu e-mail, se necessário."
             );
-            navigation.navigate("Options");
+            navigation.reset({
+              index: 0,
+              routes: [
+                { name: "TabNavigator", params: { screen: "Options" } }
+              ],
+            });
         } catch (e) {
             Alert.alert("Erro inesperado", String(e?.message || e));
         } finally {
@@ -77,7 +82,14 @@ export default function Cadastro({ navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.topArea}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+                <TouchableOpacity
+                  hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
+                  style={styles.backBtn}
+                  onPress={() => {
+                    if (navigation?.canGoBack?.()) navigation.goBack();
+                    else navigation.navigate("Initial");
+                  }}
+                >
                     <MaterialIcons name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
                 <Image
@@ -159,6 +171,9 @@ const styles = StyleSheet.create({
     backBtn: {
         alignSelf: "flex-start",
         marginBottom: 8,
+        padding: 6,
+        marginTop: 8,
+        zIndex: 20,
     },
     logo: {
         width: 220,

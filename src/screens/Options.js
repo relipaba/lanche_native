@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 
 const BLUE_TOP = "#4E7AD7";
 const BLUE_BOTTOM = "#274A92";
@@ -10,9 +9,6 @@ export default function Options({ navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-                    <MaterialIcons name="arrow-back" size={24} color="#000" />
-                </TouchableOpacity>
                 <Image source={require("../../assets/SescSenac.png")} style={styles.headerLogo} resizeMode="contain" />
             </View>
 

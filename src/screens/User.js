@@ -19,7 +19,7 @@ const YELLOW = "#FFBF3C";
 const YELLOW_BORDER = "#C98E00";
 
 const KEY_NAME = "user_name";
-const KEY_EMAIL = "user_email";
+// Não persistimos email localmente: vem do Supabase
 
 export default function User({ navigation }) {
   const [name, setName] = useState("");
@@ -27,6 +27,7 @@ export default function User({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [cep, setCep] = useState("");
+  const [idade, setIdade] = useState("");
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
   const [rua, setRua] = useState("");
@@ -38,25 +39,27 @@ export default function User({ navigation }) {
   useEffect(() => {
     (async () => {
       try {
-        const [{ data: userData }, n, e] = await Promise.all([
+        const [{ data: userData }] = await Promise.all([
           supabase.auth.getUser(),
-          AsyncStorage.getItem(KEY_NAME),
-          AsyncStorage.getItem(KEY_EMAIL),
         ]);
         const user = userData?.user;
         if (user?.email) setEmail(user.email);
-        if (n) setName(n);
-        if (e) setEmail(e);
+        // nome salvo localmente por usuário (fallback quando perfil não existe)
+        if (user?.id) {
+          const localName = await AsyncStorage.getItem(`${KEY_NAME}:${user.id}`);
+          if (localName) setName(localName);
+        }
 
         if (user?.id) {
           const { data, error } = await supabase
             .from('perfil')
-            .select('nome, cep, cidade, estado, rua, bairro, complemento, sexo, telefone')
+            .select('nome, cep, data_nascimento, cidade, estado, rua, bairro, complemento, sexo, telefone')
             .eq('id_user', user.id)
             .maybeSingle();
           if (!error && data) {
             setName(data.nome || "");
             setCep(data.cep || "");
+            setIdade((data.data_nascimento ?? "").toString());
             setCidade(data.cidade || "");
             setEstado(data.estado || "");
             setRua(data.rua || "");
@@ -75,10 +78,9 @@ export default function User({ navigation }) {
   const onConfirm = async () => {
     try {
       setLoading(true);
-      await Promise.all([
-        AsyncStorage.setItem(KEY_NAME, name || ""),
-        AsyncStorage.setItem(KEY_EMAIL, email || ""),
-      ]);
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData?.user?.id;
+      if (uid) await AsyncStorage.setItem(`${KEY_NAME}:${uid}`, name || "");
       Alert.alert("Perfil salvo", "Suas informações foram atualizadas.");
     } catch (err) {
       Alert.alert("Erro", "Não foi possível salvar agora.");
@@ -116,6 +118,7 @@ export default function User({ navigation }) {
         id_user: user.id,
         nome: name || null,
         cep: cep || null,
+        data_nascimento: idade || null,
         cidade: cidade || null,
         estado: estado || null,
         rua: rua || null,
@@ -131,10 +134,9 @@ export default function User({ navigation }) {
         Alert.alert("Erro", error.message || "Não foi possível salvar agora.");
         return;
       }
-      await Promise.all([
-        AsyncStorage.setItem(KEY_NAME, name || ""),
-        AsyncStorage.setItem(KEY_EMAIL, email || ""),
-      ]);
+      const { data: userData2 } = await supabase.auth.getUser();
+      const uid2 = userData2?.user?.id;
+      if (uid2) await AsyncStorage.setItem(`${KEY_NAME}:${uid2}`, name || "");
       Alert.alert("Perfil salvo", "Suas informações foram atualizadas.");
     } catch (err) {
       Alert.alert("Erro", "Não foi possível salvar agora.");
@@ -146,7 +148,13 @@ export default function User({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => {
+            if (navigation?.canGoBack?.()) navigation.goBack();
+            else navigation.navigate("TabNavigator");
+          }}
+        >
           <MaterialIcons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
       </View>
@@ -173,8 +181,8 @@ export default function User({ navigation }) {
             placeholder="email"
             placeholderTextColor="#777"
             value={email}
-            onChangeText={setEmail}
-            style={styles.textInput}
+            editable={false}
+            style={[styles.textInput, { color: '#666' }]}
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -188,6 +196,18 @@ export default function User({ navigation }) {
             onChangeText={setCep}
             style={styles.textInput}
             keyboardType="number-pad"
+          />
+        </View>
+
+        <View style={styles.inputWrapper}>
+          <TextInput
+            placeholder="Idade"
+            placeholderTextColor="#777"
+            value={idade}
+            onChangeText={setIdade}
+            style={styles.textInput}
+            keyboardType="number-pad"
+            maxLength={3}
           />
         </View>
 
@@ -295,6 +315,8 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     alignSelf: "flex-start",
+    padding: 6,
+    zIndex: 20,
   },
   profileCard: {
     alignItems: "center",

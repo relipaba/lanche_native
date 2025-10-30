@@ -71,7 +71,14 @@ export default function Historico({ navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+                <TouchableOpacity
+                  hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
+                  onPress={() => {
+                    if (navigation?.canGoBack?.()) navigation.goBack();
+                    else navigation.navigate("TabNavigator");
+                  }}
+                  style={styles.backBtn}
+                >
                     <MaterialIcons name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
             </View>
@@ -114,7 +121,7 @@ function toBRDate(d) {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#fff" },
     header: { paddingTop: 24, paddingHorizontal: 12 },
-    backBtn: { alignSelf: "flex-start" },
+    backBtn: { alignSelf: "flex-start", padding: 6, marginTop: 8, zIndex: 20 },
     listContent: { paddingHorizontal: 20, paddingBottom: 140, gap: 12 },
     card: {
         flexDirection: "row",

@@ -25,7 +25,14 @@ export default function Details({ route, navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+                <TouchableOpacity
+                    hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
+                    onPress={() => {
+                        if (navigation?.canGoBack?.()) navigation.goBack();
+                        else navigation.navigate("TabNavigator");
+                    }}
+                    style={styles.backBtn}
+                >
                     <MaterialIcons name="arrow-back" size={24} color="#000" />
                 </TouchableOpacity>
             </View>
@@ -88,6 +95,9 @@ const styles = StyleSheet.create({
     },
     backBtn: {
         alignSelf: "flex-start",
+        padding: 6,
+        marginTop: 8,
+        zIndex: 20,
     },
     hero: {
         width: "100%",

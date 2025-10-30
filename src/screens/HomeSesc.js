@@ -100,7 +100,14 @@ export default function HomeSesc({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+        <TouchableOpacity
+          hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
+          onPress={() => {
+            if (navigation?.canGoBack?.()) navigation.goBack();
+            else navigation.navigate("TabNavigator");
+          }}
+          style={styles.backBtn}
+        >
           <MaterialIcons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Image source={require("../../assets/Sesc.png")} style={styles.brand} resizeMode="contain" />
@@ -177,6 +184,11 @@ export default function HomeSesc({ navigation }) {
           </View>
         </View>
       )}
+      <Image
+        source={require("../../assets/onda.png")}
+        style={styles.wave}
+        resizeMode="cover"
+      />
     </View>
   );
 }
@@ -239,6 +251,9 @@ const styles = StyleSheet.create({
   backBtn: {
     alignSelf: "flex-start",
     marginBottom: 4,
+    padding: 6,
+    marginTop: 8,
+    zIndex: 20,
   },
   brand: {
     width: 60,
@@ -363,5 +378,13 @@ const styles = StyleSheet.create({
     color: BLUE_TOP,
     marginTop: 6,
     textDecorationLine: "underline",
+  },
+  wave: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: "115%",
+    height: 240,
+    zIndex: -1,
   },
 });
